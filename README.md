@@ -1,7 +1,5 @@
 # PAMPHLET
 
-## PAMPHLET
-
 PAM Prediction HomoLogous Enhancement Toolkit
 
 ## Dependencies
