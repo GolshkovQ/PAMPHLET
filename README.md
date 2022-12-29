@@ -35,3 +35,13 @@ NEED INTERNET CONNECTION
 `-R`,`--refmode`: Reference mode, choices = `r` or `nr` or `a`.  `r`  means reference mode, which use taxid to revise homologue protein. `nr` is non-reference mode (use most-redundant taxid as homologue protein reference) and `a` is all-mode (use all significant hit as homologue protein). Default is `r`
 
 `-f`,`--freqmode`: Base frequency calculation mode, choices = `linear` and `sigmoid`, which effect weblogo. Default is `sigmoid`
+
+`-b`,`--blastmode`: Spacer blastn mode. Common mode means use default blastn parameters and strict mode means use specific parameters, which could get more putative protospacers but also could cause false positives. Choices = `relax` and `common`, default is `common`
+
+`--pcovs`: Minimum percent coverage of spacer sequence, default is `0.9`.
+
+`--pident`: Minimum percent identity of spacer sequence, default is `0.9`.
+
+`--rident`: Minimum percent identity of repeat sequence, default is `0.8`.
+
+`--MaxProteinNumber`: Maximum number of protein homologs, default is `20`. If the size is too large, NCBI will forbidden your request.
