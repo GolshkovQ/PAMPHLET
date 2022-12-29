@@ -19,11 +19,12 @@ import time
 
 print('''
 
-██████   █████  ███    ███ ██████  ██   ██ ██      ███████ ████████ 
-██   ██ ██   ██ ████  ████ ██   ██ ██   ██ ██      ██         ██    
-██████  ███████ ██ ████ ██ ██████  ███████ ██      █████      ██    
-██      ██   ██ ██  ██  ██ ██      ██   ██ ██      ██         ██    
-██      ██   ██ ██      ██ ██      ██   ██ ███████ ███████    ██   
+    ██████╗  █████╗ ███╗   ███╗██████╗ ██╗  ██╗██╗     ███████╗████████╗
+    ██╔══██╗██╔══██╗████╗ ████║██╔══██╗██║  ██║██║     ██╔════╝╚══██╔══╝
+    ██████╔╝███████║██╔████╔██║██████╔╝███████║██║     █████╗     ██║   
+    ██╔═══╝ ██╔══██║██║╚██╔╝██║██╔═══╝ ██╔══██║██║     ██╔══╝     ██║   
+    ██║     ██║  ██║██║ ╚═╝ ██║██║     ██║  ██║███████╗███████╗   ██║   
+    ╚═╝     ╚═╝  ╚═╝╚═╝     ╚═╝╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝  
 
 ''')
 
@@ -64,6 +65,11 @@ def main():
     FlankLength = opts.flanklen
     RefMode = opts.refmode
     FreqMode = opts.freqmode
+    BlastMode = opts.blastmode
+    ProteinCOV = opts.pcovs
+    ProteinIDENT = opts.pident
+    RepeatIDENT = opts.rident
+    MaxProteinNum = opts.MaxProteinNum
 
     ### FILE CHECKS
 
@@ -80,14 +86,14 @@ def main():
     if ProteinFile != None and ProteinBlastResult == None:
         print("Using protein sequences to revise spacers...")
         PAMPHLETParams.check_protein_files(ProteinFile)
-        finalspacer = PAMPHLETReviser.main(SpacerFile,RepeatSeq,ProteinFile,OutDir,UniqueMode,ProteinBlastResult,ProteinLength)
+        finalspacer = PAMPHLETReviser.main(SpacerFile,RepeatSeq,ProteinFile,OutDir,UniqueMode,ProteinBlastResult,ProteinLength,RefMode,ProteinCOV,ProteinIDENT,RepeatIDENT,MaxProteinNum)
         print("Using protein sequences to revise spacers finished. Time used: %s seconds" % (time.time() - runningTime))
         print("===============================================================")
         if finalspacer == False:
             finalspacer = SpacerFile
     elif ProteinFile == None and ProteinBlastResult != None:
         print("Using protein blast results to revise spacers...")
-        finalspacer = PAMPHLETReviser.main(SpacerFile,RepeatSeq,ProteinBlastResult,OutDir,UniqueMode,ProteinBlastResult,ProteinLength,RefMode)
+        finalspacer = PAMPHLETReviser.main(SpacerFile,RepeatSeq,ProteinBlastResult,OutDir,UniqueMode,ProteinBlastResult,ProteinLength,RefMode,ProteinCOV,ProteinIDENT,RepeatIDENT,MaxProteinNum)
         if finalspacer == False:
             finalspacer = SpacerFile
     else:
@@ -122,7 +128,7 @@ def main():
     for InputSpacerFile in os.listdir(SpacerInputDir):
         InputSpacerFile = os.path.join(SpacerInputDir,InputSpacerFile)
         OutputSpacerFile = os.path.join(SpacerBlastOutputDir,os.path.basename(InputSpacerFile))
-        OnlineResources.run_spacer_blast(InputSpacerFile,OutputSpacerFile,SpacerBlastDB)
+        OnlineResources.run_spacer_blast(InputSpacerFile,OutputSpacerFile,SpacerBlastDB,BlastMode)
 
     ### MERGE BLAST OUTPUT IF THERE HAVE MULTIPLE BLAST OUTPUT
     MergedSpacerBlastOutput = os.path.join(SpacerBlastDir,"MergedSpacerBlastOutput.txt")
@@ -167,7 +173,7 @@ def main():
         for InputSpacerFile in os.listdir(RevisedSpacerInputDir):
             InputSpacerFile = os.path.join(RevisedSpacerInputDir,InputSpacerFile)
             OutputSpacerFile = os.path.join(RevisedSpacerBlastOutputDir,os.path.basename(InputSpacerFile))
-            OnlineResources.run_spacer_blast(InputSpacerFile,OutputSpacerFile,SpacerBlastDB)
+            OnlineResources.run_spacer_blast(InputSpacerFile,OutputSpacerFile,SpacerBlastDB,BlastMode)
         
         ### MERGE BLAST OUTPUT IF THERE HAVE MULTIPLE BLAST OUTPUT
         if len(os.listdir(RevisedSpacerBlastOutputDir)) > 1:
