@@ -4,9 +4,9 @@ PAM Prediction HomoLogous Enhancement Toolkit
 
 ## Dependencies
 
-Python packages:  argparse, Biopython, pyfaidx, urllib, requests, func_timeout
+Python packages:  `argparse`, `Biopython`, `pyfaidx`, `urllib`, `requests`, `func_timeout`
 
-Softwares: WebLOGO(need GhostScript), seqkit (ADD TO PATH)
+Softwares: `WebLOGO`(need `GhostScript`), `seqkit` (ADD TO PATH)
 
 NEED INTERNET CONNECTION
 
