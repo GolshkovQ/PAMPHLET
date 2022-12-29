@@ -14,14 +14,13 @@ if sys.version_info > (3, 0):
     running_python3 = True
 
 import os
-import time
 from Bio import SeqIO
 
 from PAMPHLET import PAMPHLETParams
 from PAMPHLET import OnlineResources
 from PAMPHLET import PAMPHLETResources
 
-def main(spacerFile,repeatseq,proteinFile,outDir,inunique,inblast,inlen,refmode):
+def main(spacerFile,repeatseq,proteinFile,outDir,inunique,inblast,inlen,refmode,incov,inident,inrident,inmaxprotlen):
 
     if inblast is None:
 
@@ -46,14 +45,14 @@ def main(spacerFile,repeatseq,proteinFile,outDir,inunique,inblast,inlen,refmode)
     
     ### Get significant hits and return putative source tax name
     SignificantHitResult = os.path.join(OnlineBlastDir,"SignificantHits.txt")
-    PutativeSourceTaxBox = PAMPHLETResources.get_significant_blastp_hits(OnlineBlastResult,SignificantHitResult,proteinLength)
+    PutativeSourceTaxBox = PAMPHLETResources.get_significant_blastp_hits(OnlineBlastResult,SignificantHitResult,proteinLength,incov,inident)
     if PAMPHLETParams.check_null_files(SignificantHitResult):
         print("No significant hits found. Spacer revise failed.")
         return False
 
     ### Get seq dump file
     SeqDumpFile = os.path.join(OnlineBlastDir,"SeqDump.txt")
-    refseqInformation = OnlineResources.get_seq_dump_file(SignificantHitResult,SeqDumpFile)
+    refseqInformation = OnlineResources.get_seq_dump_file(SignificantHitResult,SeqDumpFile,inmaxprotlen)
 
     if PAMPHLETParams.check_null_files(SeqDumpFile):
         print("No seq dump file found. Spacer revise failed.")
@@ -78,7 +77,7 @@ def main(spacerFile,repeatseq,proteinFile,outDir,inunique,inblast,inlen,refmode)
         return False
 
     ### Now, select the correct DRs based on the MinCED result and repeat file
-    SelectedSpacerFilesDict = PAMPHLETResources.select_correct_dr(MinCEDDir,repeatseq)
+    SelectedSpacerFilesDict = PAMPHLETResources.select_correct_dr(MinCEDDir,repeatseq,inrident)
 
     ### Now, check the selected spacer file dict, if the dict is empty, return False
     if len(SelectedSpacerFilesDict) == 0:
