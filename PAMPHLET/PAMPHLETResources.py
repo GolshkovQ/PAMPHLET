@@ -36,7 +36,7 @@ def near_crispr_array(indict,inid,instart,inend):
                 return True
     return False
 
-def get_significant_blastp_hits(blastres,significantres,proteinlen):
+def get_significant_blastp_hits(blastres,significantres,proteinlen,incov,inident):
     ### This step, get significant hits
     ### The significant hits are defined as the hits with evalue <= 1e-5 & qcov >= 0.9 & pident >= 90.0
 
@@ -54,9 +54,9 @@ def get_significant_blastp_hits(blastres,significantres,proteinlen):
                 QueryIdentity = float(records.split("\t")[2])
                 SubjectID = records.split("\t")[1]
 
-                if Evalue <= 1e-5 and QueryCoverage >= 0.9 and QueryIdentity >= 90.0:
+                if Evalue <= 1e-5 and QueryCoverage >= incov and QueryIdentity >= inident*100:   # if True:
                     fb.write(records)
-                if Evalue <= 1e-30 and QueryCoverage >= 0.98 and QueryIdentity >= 98.0 and linecount <= 5:
+                if Evalue <= 1e-30 and QueryCoverage >= 0.98 and QueryIdentity >= 98.0 and linecount <= 5: # if True:
                     TopHit.append(SubjectID)
 
     fa.close()
@@ -147,7 +147,7 @@ def run_minced(indir,outdir):
             os.system(CMD)
     return True
 
-def select_correct_dr(indir,tempseq):
+def select_correct_dr(indir,tempseq,inident):
     finaldict = {}
     for mincedfile in os.listdir(indir):
         if mincedfile.endswith(".gff"):
@@ -160,14 +160,14 @@ def select_correct_dr(indir,tempseq):
                         topalign = pairwise2.align.globalms(rptunitseq,tempseq.replace("U","T"),10,0,-10,-0.5,one_alignment_only=True)
                         formatalign = pairwise2.format_alignment(*topalign[0])
                         similarity = formatalign.split("\n")[1].count("|")/len(topalign[0][0].lstrip("-").rstrip("-"))
-                        if similarity >= 0.8:
+                        if similarity >= inident:
                             finaldict[mincedfile.replace(".gff","_spacers.fa")] = ["P",rptunitid]
                         else:
                             rcrptunitseq = reverse_complete(rptunitseq)
                             topalign = pairwise2.align.globalms(rcrptunitseq,tempseq.replace("U","T"),10,0,-10,-0.5,one_alignment_only=True)
                             formatalign = pairwise2.format_alignment(*topalign[0])
                             similarity = formatalign.split("\n")[1].count("|")/len(topalign[0][0].lstrip("-").rstrip("-"))
-                            if similarity >= 0.8:
+                            if similarity >= inident:
                                 finaldict[mincedfile.replace(".gff","_spacers.fa")] = ["N",rptunitid]
             fa.close()
     return finaldict
