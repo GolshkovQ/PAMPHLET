@@ -29,6 +29,11 @@ def get_arg_parser():
     ap.add_argument("-L","--flanklen",help="Length of flank sequence, default is 12.",type=int,default=12)
     ap.add_argument("-R","--refmode",help="Reference mode. If set, revise protein homolog based on taxid. r is reference and nr is non-reference",choices=["r","nr","a"],default="r")
     ap.add_argument("-f","--freqmode",help="Base frequency calculation mode.",choices=['sigmoid','linear'],default='sigmoid')
+    ap.add_argument("-b","--blastmode",help="Spacer blastn mode. Common mode means use default blastn parameters and strict mode means use specific parameters, which could get more putative protospacers but also could cause false positives. Default is common mode.",choices=['relax','common'],default='common')
+    ap.add_argument("--pcovs",help="Minimum percent coverage of spacer sequence, default is 0.9.",type=float,default=0.9)
+    ap.add_argument("--pident",help="Minimum percent identity of spacer sequence, default is 0.9.",type=float,default=0.9)
+    ap.add_argument("--rident",help="Minimum percent identity of repeat sequence, default is 0.8.",type=float,default=0.8)
+    ap.add_argument("--MaxProteinNum",help="Maximum number of protein homologs, default is 20. If the size is too large, NCBI will forbidden your request.",type=int,default=20)
 
     return ap
 
@@ -67,6 +72,10 @@ def check_environment():
     ### Check Weblogo add to PATH ###
     if os.popen('which weblogo').read().strip() == '':
         print('Weblogo not found. Please add weblogo to PATH.')
+        sys.exit(1)
+
+    if os.popen('which ghostscript').read().strip() == "" and os.popen('which gs').read().strip() == "":
+        print("GhostScript not found. Please add GhostScript to PATH.")
         sys.exit(1)
 
 def check_outdir(outdir):
