@@ -1,6 +1,6 @@
 # PAMPHLET
 
-PAM Prediction HomoLogous Enhancement Toolkit
+PAM Prediction HomoLogous Enhancement Toolkit (DEV version)
 
 ## Dependencies
 
