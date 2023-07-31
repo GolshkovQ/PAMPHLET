@@ -161,7 +161,7 @@ def get_seq_dump_file(insig,outdump,inmaxsize):
             sbjctID = faline.split("\t")[1]
             protein2fasta = proteinpage + sbjctID + "&rettype=fasta"
             retry_counter = 0
-            while retry_counter < 5:
+            while retry_counter < 3:
                 try:
                     proteinfasta = get_protein_sequences(protein2fasta)
                     break
@@ -169,7 +169,7 @@ def get_seq_dump_file(insig,outdump,inmaxsize):
                     retry_counter += 1
                     print("Retry in: "+sbjctID+", retry time: "+str(retry_counter))
             try:
-                proteinsequence = proteinfasta.split("\n")[1]
+                proteinsequence = "".join(proteinfasta.split("\n")[1:])
             except:
                 ### Into the next loop
                 print("Unknown error in: "+sbjctID)
@@ -178,7 +178,7 @@ def get_seq_dump_file(insig,outdump,inmaxsize):
                 URLCorrectFlag = True
                 retry_counter = 0
                 ### Set timeout for get_session_post_text function, time out limit is 10s
-                while retry_counter < 5:
+                while retry_counter < 3:
                     try:
                         r6 = get_session_post_text(sbjctID)
                         break
@@ -204,9 +204,9 @@ def get_seq_dump_file(insig,outdump,inmaxsize):
                         genomedupbox.append(refid)
                         tempdict[refid] = sbjctID
                         gi2fasta = genomepage+refid+"&rettype=fasta"
-                        ### retry for 5 times
+                        ### retry for 3 times
                         retry_counter = 0
-                        while retry_counter < 5:
+                        while retry_counter < 3:
                             try:
                                 genomefasta = get_genome_fasta(gi2fasta)
                                 if ">" in genomefasta and not "Error" in genomefasta and not "error" in genomefasta:
@@ -264,8 +264,8 @@ def get_genome_seqdump_files(inhit,outfile):
                 duplicatebox.append(sbjctid)
                 gi2fasta = genomepage + sbjctid + "&rettype=fasta"
                 retry_counter = 0
-                ### if false, retry 5 times
-                while retry_counter < 5:
+                ### if false, retry 3 times
+                while retry_counter < 3:
                     try:
                         genomefasta = get_genome_request_text(gi2fasta)
                         if ">" in genomefasta and not "Error" in genomefasta and not "error" in genomefasta:

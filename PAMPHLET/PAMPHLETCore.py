@@ -19,12 +19,12 @@ import time
 
 print('''
 
-    ██████╗  █████╗ ███╗   ███╗██████╗ ██╗  ██╗██╗     ███████╗████████╗
-    ██╔══██╗██╔══██╗████╗ ████║██╔══██╗██║  ██║██║     ██╔════╝╚══██╔══╝
-    ██████╔╝███████║██╔████╔██║██████╔╝███████║██║     █████╗     ██║   
-    ██╔═══╝ ██╔══██║██║╚██╔╝██║██╔═══╝ ██╔══██║██║     ██╔══╝     ██║   
-    ██║     ██║  ██║██║ ╚═╝ ██║██║     ██║  ██║███████╗███████╗   ██║   
-    ╚═╝     ╚═╝  ╚═╝╚═╝     ╚═╝╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝  
+██████╗  █████╗ ███╗   ███╗██████╗ ██╗  ██╗██╗     ███████╗████████╗   ██████╗ ███████╗██╗   ██╗
+██╔══██╗██╔══██╗████╗ ████║██╔══██╗██║  ██║██║     ██╔════╝╚══██╔══╝   ██╔══██╗██╔════╝██║   ██║
+██████╔╝███████║██╔████╔██║██████╔╝███████║██║     █████╗     ██║█████╗██║  ██║█████╗  ██║   ██║
+██╔═══╝ ██╔══██║██║╚██╔╝██║██╔═══╝ ██╔══██║██║     ██╔══╝     ██║╚════╝██║  ██║██╔══╝  ╚██╗ ██╔╝
+██║     ██║  ██║██║ ╚═╝ ██║██║     ██║  ██║███████╗███████╗   ██║      ██████╔╝███████╗ ╚████╔╝ 
+╚═╝     ╚═╝  ╚═╝╚═╝     ╚═╝╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝   ╚═╝      ╚═════╝ ╚══════╝  ╚═══╝  
 
 ''')
 
@@ -70,6 +70,8 @@ def main():
     ProteinIDENT = opts.pident
     RepeatIDENT = opts.rident
     MaxProteinNum = opts.MaxProteinNum
+    LogStatus = opts.logfile
+    ReviseLenStatus = opts.reviseLen
 
     ### FILE CHECKS
 
@@ -79,6 +81,10 @@ def main():
     PAMPHLETParams.check_outdir(OutDir)
 
     ### MODE CHECKS AND SPACER REVISE
+
+    if LogStatus == True:
+        LogFiles = os.path.join(OutDir,"PAMPHLET.log")
+        flogfile = open(LogFiles,'w')
 
     print("Initializing parameters finished. Time used: %s seconds" % (time.time() - runningTime))
     print("===============================================================")
@@ -108,6 +114,9 @@ def main():
     ### RENAME SPACER ID
     SpacerIDLenList = PAMPHLETResources.rename_spacer_id(finalspacer,finalspacer+".label",Oriention)
     finalspacer = finalspacer + ".tmp"
+    if LogStatus == True:
+        finalspacerNums = os.popen("grep -c '>' %s" % finalspacer).read().strip()
+        flogfile.write("Spacer sequences after revise: " + finalspacerNums + "\n")
 
     ### SETTING SPACER BLAST DIRECTORY
     SpacerBlastDir = os.path.join(OutDir,"SpacerBlast/")
@@ -145,13 +154,18 @@ def main():
     FinalSpacerHitFile = os.path.join(OutDir,"FinalSpacerHit.txt")
 
     ### CHECK INSIGNIFICANT ID NUMBERS, IF IS 0, CONTINUE TO SEQDUMP DOWNLOAD; ELSE, REVISE SPACER LENGTH.
-    if len(InSignificantSpacerID) != 0:
+    if len(InSignificantSpacerID) != 0 and ReviseLenStatus == True:
 
         print("First round spacer blast finished. Time used: %s seconds" % (time.time() - runningTime))
         print("Start revising spacer length for non-significant spacer blast hits...")
         print("This step may take a long time, please wait patiently...")
         print("Revised spacers: "+"; ".join(InSignificantSpacerID))
         print("===============================================================")
+
+        if LogStatus == True:
+            RevisedIDNums = len(InSignificantSpacerID)
+            flogfile.write("Revised spacer ID numbers: " + str(RevisedIDNums) + "\n")
+            flogfile.write("Revised spacer ID :"+"; ".join(InSignificantSpacerID)+"\n")
 
         ## REVISE SPACER BLAST DIRECTORY
         RevisedLengthSpacerFile = os.path.join(SpacerBlastDir,"RevisedLengthSpacerFile.txt")
@@ -190,24 +204,42 @@ def main():
         SignificantRevisedSpacerBlastOutput = os.path.join(RevisedSpacerBlastDir,"SignificantRevisedSpacerBlastOutputRaw.txt")
         FalseSpacerIDList = PAMPHLETResources.get_significant_spacer_blast_output(RevisedSpacerBlastOutput,SignificantRevisedSpacerBlastOutput,RevisedSpacerLen)
 
+        if LogStatus == True:
+            FalseSpacerIDNum = len(FalseSpacerIDList)
+            SecondFalseList = list(set(InSignificantSpacerID).difference(set(FalseSpacerIDList)))
+            flogfile.write("False spacer ID numbers: " + str(FalseSpacerIDNum) + "\n")
+            flogfile.write("False spacer ID :"+"; ".join(FalseSpacerIDList)+"\n")
+            flogfile.write("Second false spacer ID numbers: " + str(len(SecondFalseList)) + "\n")
+            SecondFalseRate = len(SecondFalseList)/len(InSignificantSpacerID)
+            flogfile.write("Second false spacer rate: " + str(SecondFalseRate) + "\n")
+
         print("Revised false spacer: "+"; ".join(FalseSpacerIDList))
         print("Getting final spacer blast output...")
 
         ### CHECK SIGNIFICANT SPACER BLAST OUTPUT, IF IS 0, CONTINUE TO SEQDUMP DOWNLOAD; ELSE, REVISE SPACER LENGTH.
         if os.path.getsize(SignificantRevisedSpacerBlastOutput) == 0:
             print("WARNING: No significant spacer blast hit for revised spacer length.")
+            if LogStatus == True:
+                flogfile.write("WARNING: No significant spacer blast hit for revised spacer length."+"\n")
             if os.path.getsize(SignificantSpacerBlastOutput) == 0:
                 print("No significant spacer blast hit for both original spacer and revised spacer .")
                 print("Cannot find spacer PAM sequence.")
+                if LogStatus == True:
+                    flogfile.write("No significant spacer blast hit for both original spacer and revised spacer .")
+                    flogfile.write("Cannot find spacer PAM sequence."+"\n")
                 sys.exit(1)
             else:
                 print("Use original spacer blast hit.")
                 os.system("mv %s %s" % (SignificantSpacerBlastOutput,FinalSpacerHitFile))
+                if LogStatus == True:
+                    flogfile.write("Use original spacer blast hit."+"\n")
         else:
             PAMPHLETResources.merge_spacer_blast_output(SignificantSpacerBlastOutput,SignificantRevisedSpacerBlastOutput,FinalSpacerHitFile)
     
     else:
         print("Use original spacer blast hit.")
+        if LogStatus == True:
+            flogfile.write("Use original spacer blast hit."+"\n")
         print("Spacer blast finished. Time used: %s seconds" % (time.time() - runningTime))
         print("===============================================================")
         os.system("mv %s %s" % (SignificantSpacerBlastOutput,FinalSpacerHitFile))
@@ -228,7 +260,7 @@ def main():
     DownStreamFlankSeq = os.path.join(OutDir,"DownStreamFlankSeq.txt")
     tempMinCEDDir = os.path.join(OutDir,"SpacerSeqdumpMinCED/")
     PAMPHLETParams.check_directory(tempMinCEDDir)
-    UpstreamDict, DownstreamDict = PAMPHLETResources.get_flank_seq(FinalSpacerHitFile,GenomeSeqdumpFile,UpStreamFlankSeq,DownStreamFlankSeq,FlankLength,tempMinCEDDir)
+    UpstreamDict, DownstreamDict, SortedUpDupDict, SortedDownDupDict = PAMPHLETResources.get_flank_seq(FinalSpacerHitFile,GenomeSeqdumpFile,UpStreamFlankSeq,DownStreamFlankSeq,FlankLength,tempMinCEDDir)
 
     if len(UpstreamDict) == 0 or len(DownstreamDict) == 0:
         print("Cannot find upstream or downstream flank sequence.")
@@ -237,23 +269,44 @@ def main():
     ### CONVERT SEQUENCE DICT TO FREQUENCY LIST
     UpstreamFreqList = PAMPHLETResources.convert_seq_to_freq(UpstreamDict,FlankLength,FreqMode)
     DownstreamFreqList = PAMPHLETResources.convert_seq_to_freq(DownstreamDict,FlankLength,FreqMode)
+    print(UpstreamFreqList)
+    print(DownstreamFreqList)
 
     ### WRITE FREQDICT TO FILE, BUILD MATRIX
     UpstreamFreqFile = os.path.join(OutDir,"UpstreamFreq.txt")
     DownstreamFreqFile = os.path.join(OutDir,"DownstreamFreq.txt")
+    ### This is my temp add function to run both positive and negative strand in one run
+    NegativeUpstreamFreqFile = os.path.join(OutDir,"NegativeUpstreamFreq.txt")
+    NegativeDownstreamFreqFile = os.path.join(OutDir,"NegativeDownstreamFreq.txt")
     PAMPHLETResources.write_freq_dict_to_file(UpstreamFreqList,UpstreamFreqFile)
     PAMPHLETResources.write_freq_dict_to_file(DownstreamFreqList,DownstreamFreqFile)
+    PAMPHLETResources.write_freq_dict_to_file_neg(UpstreamFreqList,NegativeDownstreamFreqFile)
+    PAMPHLETResources.write_freq_dict_to_file_neg(DownstreamFreqList,NegativeUpstreamFreqFile)
 
     ### NOW, DRAW WEBLOGO AND SAVE TO FILE
     UpstreamLogoFile = os.path.join(OutDir,"UpstreamLogo.png")
     DownstreamLogoFile = os.path.join(OutDir,"DownstreamLogo.png")
+    NegativeUpstreamLogoFile = os.path.join(OutDir,"NegativeUpstreamLogo.png")
+    NegativeDownstreamLogoFile = os.path.join(OutDir,"NegativeDownstreamLogo.png")
     PAMPHLETResources.draw_weblogo(UpstreamFreqFile,UpstreamLogoFile,"Upstream",FlankLength)
     PAMPHLETResources.draw_weblogo(DownstreamFreqFile,DownstreamLogoFile,"Downstream",FlankLength)
+    PAMPHLETResources.draw_weblogo_neg(NegativeUpstreamFreqFile,NegativeUpstreamLogoFile,"Upstream",FlankLength)
+    PAMPHLETResources.draw_weblogo_neg(NegativeDownstreamFreqFile,NegativeDownstreamLogoFile,"Downstream",FlankLength)
 
     ### PAMPHLET FINISHED
     print("PAMPHLET finished.")
     print("Total time used: %s seconds" % (time.time() - runningTime))
     print("===============================================================")
+
+    if len(SortedUpDupDict) <= 10:
+        TopSize = len(SortedUpDupDict)
+    else:
+        TopSize = 10
+    for i in range(0,TopSize):
+        print("RANK "+str(i+1)+":\n")
+        print("Upstream: "+str(SortedUpDupDict[i][1])+"\t"+str(SortedUpDupDict[i][0]))
+        print("Downstream: "+str(SortedDownDupDict[i][1])+"\t"+str(SortedDownDupDict[i][0]))
+        print("===============================================================")
 
 if __name__ == "__main__":
     main()

@@ -338,6 +338,8 @@ def get_flank_seq(inhit,ingenome,inupstream,indownstream,flanklen,tempdir):
     refseqs = Fasta(ingenome)
     upstreamDict = {}
     downstreamDict = {}
+    upstreamDupDict = {}
+    downstreamDupDict = {}
 
     ### Run MinCED vs. ingenome, generate CRISPR gff files and build CRISPR gff dict
     CRISPRDict = {}
@@ -379,9 +381,15 @@ def get_flank_seq(inhit,ingenome,inupstream,indownstream,flanklen,tempdir):
                             if not queryid in upstreamDict.keys():
                                 upstreamDict[queryid] = []
                             upstreamDict[queryid].append(upstreamSeqs)
+                            if not upstreamSeqs in upstreamDupDict.keys():
+                                upstreamDupDict[upstreamSeqs] = 0
+                            upstreamDupDict[upstreamSeqs] += 1
                             if not queryid in downstreamDict.keys():
                                 downstreamDict[queryid] = []
                             downstreamDict[queryid].append(downstreamSeqs)
+                            if not downstreamSeqs in downstreamDupDict.keys():
+                                downstreamDupDict[downstreamSeqs] = 0
+                            downstreamDupDict[downstreamSeqs] += 1
                     else:
                         if sbjctendpos > flanklen and len(str(refseqs[sbjctid][::])) - sbjctstartpos > flanklen:
                             upstreamSeqs = reverse_complete(str(refseqs[sbjctid][sbjctstartpos:sbjctstartpos+flanklen]))
@@ -391,13 +399,24 @@ def get_flank_seq(inhit,ingenome,inupstream,indownstream,flanklen,tempdir):
                             if not queryid in upstreamDict.keys():
                                 upstreamDict[queryid] = []
                             upstreamDict[queryid].append(upstreamSeqs)
+                            if not upstreamSeqs in upstreamDupDict.keys():
+                                upstreamDupDict[upstreamSeqs] = 0
+                            upstreamDupDict[upstreamSeqs] += 1
                             if not queryid in downstreamDict.keys():
                                 downstreamDict[queryid] = []
                             downstreamDict[queryid].append(downstreamSeqs)
+                            if not downstreamSeqs in downstreamDupDict.keys():
+                                downstreamDupDict[downstreamSeqs] = 0
+                            downstreamDupDict[downstreamSeqs] += 1 
     fa.close()
     fb.close()
     fc.close()
-    return upstreamDict,downstreamDict
+    
+    ### Sort the upstreamDupDict and downstreamDupDict based on the value, from high to low
+    SortedUpstreamDupDict = sorted(upstreamDupDict.items(), key=lambda x: x[1], reverse=True)
+    SortedDownstreamDupDict = sorted(downstreamDupDict.items(), key=lambda x: x[1], reverse=True)
+
+    return upstreamDict,downstreamDict,SortedUpstreamDupDict,SortedDownstreamDupDict
 
 def convert_seq_to_freq(indict,flanklen,freqmode):
     ### This function, will return a list, each element is a dictionary and key is A/T/C/G and the value is the score.
@@ -469,6 +488,16 @@ def write_freq_dict_to_file(indict,infile):
     fa.close()
     return True
 
+def write_freq_dict_to_file_neg(indict,infile):
+    ### This is for the negative strans, just my temp function for run the both positive and negative strand in one time.
+    ### This function will be deleted in the future.
+    ### Step1. reverse the indict
+    indict = indict[::-1]
+    with open(infile,'w') as fa:
+        fa.write("PO\tA\tT\tG\tC\n")
+        for positions in range(0,len(indict)):
+            fa.write(str(positions+1)+"\t"+str(indict[positions]['T'])+"\t"+str(indict[positions]['A'])+"\t"+str(indict[positions]['C'])+"\t"+str(indict[positions]['G'])+"\n")
+
 def draw_weblogo(infile,outpic,flag,flankLen):
     if flag == "Upstream":
         xannotation = ",".join([str(i) for i in range(-1*flankLen,0)])
@@ -476,6 +505,16 @@ def draw_weblogo(infile,outpic,flag,flankLen):
     else:
         xannotation = ",".join([str(i) for i in range(1,flankLen+1)])
         weblogotitle = "Downstream"
+    CMD = "weblogo -f "+infile+" -o "+outpic+" -F jpeg --title "+weblogotitle+" --size large --annotate "+xannotation+" --resolution 600 --color blue C \'C\' --color red T \'T\' --color green A \'A\' --color orange G \'G\'"
+    os.system(CMD)
+
+def draw_weblogo_neg(infile,outpic,flag,flankLen):
+    if flag == "Upstream":
+        xannotation = ",".join([str(i) for i in range(-1*flankLen,0)])
+        weblogotitle = "NegativeUpstream"
+    else:
+        xannotation = ",".join([str(i) for i in range(1,flankLen+1)])
+        weblogotitle = "NegativeDownstream"
     CMD = "weblogo -f "+infile+" -o "+outpic+" -F jpeg --title "+weblogotitle+" --size large --annotate "+xannotation+" --resolution 600 --color blue C \'C\' --color red T \'T\' --color green A \'A\' --color orange G \'G\'"
     os.system(CMD)
 
