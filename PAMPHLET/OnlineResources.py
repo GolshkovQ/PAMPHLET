@@ -123,7 +123,7 @@ def run_spacer_blast(infile,outfile,indb,blastmode):
     return True
 
 ### Set timeout for get_session_post_text function, time out limit is 10s
-@func_set_timeout(10)
+@func_set_timeout(20)
 def get_session_post_text(inid):
     urls = "https://www.ncbi.nlm.nih.gov/ipg/"+inid
     session = requests.Session()
@@ -136,12 +136,12 @@ def get_session_post_text(inid):
     session.cookies.clear()
     return r6
 
-@func_set_timeout(20)
+@func_set_timeout(30)
 def get_protein_sequences(inurl):
     proteintext = requests.get(inurl).text
     return proteintext
 
-@func_set_timeout(20)
+@func_set_timeout(30)
 def get_genome_fasta(inurl):
     genometext = requests.get(inurl).text
     return genometext
@@ -169,7 +169,7 @@ def get_seq_dump_file(insig,outdump,inmaxsize):
                     retry_counter += 1
                     print("Retry in: "+sbjctID+", retry time: "+str(retry_counter))
             try:
-                proteinsequence = "".join(proteinfasta.split("\n")[1:])
+                proteinsequence = proteinfasta.split("\n")[1]
             except:
                 ### Into the next loop
                 print("Unknown error in: "+sbjctID)
@@ -243,7 +243,7 @@ def get_seq_dump_file(insig,outdump,inmaxsize):
 
     return infodict
 
-@func_set_timeout(10)
+@func_set_timeout(20)
 def get_genome_request_text(inurl):
     r = requests.get(inurl)
     return r.text
