@@ -45,3 +45,7 @@ NEED INTERNET CONNECTION
 `--rident`: Minimum percent identity of repeat sequence, default is `0.8`.
 
 `--MaxProteinNumber`: Maximum number of protein homologs, default is `20`. If the size is too large, NCBI will forbidden your request.
+
+## NOTICE
+
+In this context, we recommend preparing the protein BLAST tabular text file prior to executing PAMPHLET, as this practice can save computational time. While utilizing PAMPHLET for blastp is also feasible, repeated use may lead to increased time for individual BLAST operations. Therefore, to conserve online BLAST resources, please complete the protein homology search using BLAST in advance.
