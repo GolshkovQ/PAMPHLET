@@ -77,4 +77,4 @@ python pamphlet.py -s spacers.fasta -r GCTAGTGTAGCTGTCAGTCGATGTCAC -p protein_se
 
 ## NOTICE
 
-In this context, we recommend preparing the protein BLAST tabular text file prior to executing PAMPHLET, as this practice can save computational time. While utilizing PAMPHLET for blastp is also feasible, repeated use may lead to increased time for individual BLAST operations. Therefore, to conserve online BLAST resources, please complete the protein homology search using BLAST in advance.
+We recommend preparing the protein BLAST tabular text file prior to executing PAMPHLET, as this practice can save computational time. While utilizing PAMPHLET for blastp is also feasible, repeated use may lead to increased time for individual BLAST operations. Therefore, to conserve online BLAST resources, please complete the protein homology search using BLAST in advance.
