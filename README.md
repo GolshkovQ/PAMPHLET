@@ -81,6 +81,17 @@ Here we recommend preparing the protein BLAST tabular text file prior to executi
 
 ### Prepare input files
 
+`spacers.fasta`: Contains spacer sequences
+
+`proteins_alignment.tabular.txt`: Contains cas protein blastp tabular results (from NCBI blastp result)
+
+`repeat_sequences`: Input repeat sequences, only need to paste sequence to the CMD.
+
+### Analyze Results
+
+Results will be saved in the specified output directory.
+
+Generated WebLOGO plots and PAM predictions will be available for further analysis.
 
 ## NOTICE
 
