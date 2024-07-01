@@ -75,6 +75,13 @@ Specify additional parameters as needed, here is an example with input protein s
 python pamphlet.py -s spacers.fasta -r GCTAGTGTAGCTGTCAGTCGATGTCAC -p protein_sequence.fasta -O positive -u -R a -b relax -d prokaryote --pcovs 0.9 --pident 0.9 --rident 0.9 --MaxProteinNum 20
 ```
 
+## EXAMPLE WORKFLOW
+
+Here we recommend preparing the protein BLAST tabular text file prior to executing PAMPHLET.
+
+### Prepare input files
+
+
 ## NOTICE
 
 We recommend preparing the protein BLAST tabular text file prior to executing PAMPHLET, as this practice can save computational time. While utilizing PAMPHLET for blastp is also feasible, repeated use may lead to increased time for individual BLAST operations. Therefore, to conserve online BLAST resources, please complete the protein homology search using BLAST in advance.
