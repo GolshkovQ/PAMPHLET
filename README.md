@@ -46,6 +46,35 @@ NEED INTERNET CONNECTION
 
 `--MaxProteinNumber`: Maximum number of protein homologs, default is `20`. If the size is too large, NCBI will forbidden your request.
 
+## INSTALLATION
+
+Install the required Python packages:
+```bash
+pip install argparse biopython pyfaidx urllib3 requests func_timeout
+```
+
+Install WebLOGO and seqkit, and ensure they are added to your PATH.
+
+## USAGE
+
+### BASIC USAGE
+
+```bash
+python pamphlet.py -s spacers.fa -o output_directory
+```
+
+### ADVANCED USAGE
+
+Specify additional parameters as needed, here is an example with input protein alignment tabular txt file
+```bash
+python pamphlet.py -s spacers.fasta -r GCTAGTGTAGCTGTCAGTCGATGTCAC -P proteins_alignment.tabular.txt -l 1092 -O positive -u -R a -b relax -d prokaryote --pcovs 0.9 --pident 0.9 --rident 0.9 --MaxProteinNum 20
+```
+
+Specify additional parameters as needed, here is an example with input protein sequence fasta file
+```bash
+python pamphlet.py -s spacers.fasta -r GCTAGTGTAGCTGTCAGTCGATGTCAC -p protein_sequence.fasta -O positive -u -R a -b relax -d prokaryote --pcovs 0.9 --pident 0.9 --rident 0.9 --MaxProteinNum 20
+```
+
 ## NOTICE
 
 In this context, we recommend preparing the protein BLAST tabular text file prior to executing PAMPHLET, as this practice can save computational time. While utilizing PAMPHLET for blastp is also feasible, repeated use may lead to increased time for individual BLAST operations. Therefore, to conserve online BLAST resources, please complete the protein homology search using BLAST in advance.
