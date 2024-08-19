@@ -28,7 +28,7 @@ NEED INTERNET CONNECTION
 
 `-l`,`--proteinlen`: Protein length, need to be used together with `-P`
 
-`-d`,`--spacerdb`: Spacer blast database, choices = `phage` or `prokaryote`. Default is `prokaryote`
+`-d`,`--spacerdb`: Spacer blast database, choices = `phage` or `prokaryote`. Default is `phage`
 
 `-L`,`--flanklen`: Length of flank sequence, default is `12`
 
