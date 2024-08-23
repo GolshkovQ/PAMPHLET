@@ -31,9 +31,6 @@ print('''
 
 print("PAMPHLET")
 print("PAM Prediction HomoLogous Enhancement Toolkit")
-print("Author: Chen Qi, Baitao Li, Lei Huang")
-print("University of Chinese Academy of Sciences, College of Life Sciences, Beijing, China")
-print("BGI Research, Shenzhen, China")
 
 print("===============================================================")
 print("Start loading resources...")
