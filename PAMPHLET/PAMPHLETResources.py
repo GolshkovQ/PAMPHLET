@@ -506,7 +506,7 @@ def draw_weblogo(infile,outpic,flag,flankLen):
     else:
         xannotation = ",".join([str(i) for i in range(1,flankLen+1)])
         weblogotitle = "Downstream"
-    CMD = "weblogo -f "+infile+" -o "+outpic+" -F jpeg --title "+weblogotitle+" --size large --annotate "+xannotation+" --resolution 600 --color blue C \'C\' --color red T \'T\' --color green A \'A\' --color orange G \'G\'"
+    CMD = "weblogo -f "+infile+" -o "+outpic+" -F jpeg --title "+weblogotitle+" --size large --annotate "+xannotation+" --color blue C \'C\' --color red T \'T\' --color green A \'A\' --color orange G \'G\'"
     os.system(CMD)
 
 def draw_weblogo_neg(infile,outpic,flag,flankLen):
@@ -516,7 +516,7 @@ def draw_weblogo_neg(infile,outpic,flag,flankLen):
     else:
         xannotation = ",".join([str(i) for i in range(1,flankLen+1)])
         weblogotitle = "NegativeDownstream"
-    CMD = "weblogo -f "+infile+" -o "+outpic+" -F jpeg --title "+weblogotitle+" --size large --annotate "+xannotation+" --resolution 600 --color blue C \'C\' --color red T \'T\' --color green A \'A\' --color orange G \'G\'"
+    CMD = "weblogo -f "+infile+" -o "+outpic+" -F jpeg --title "+weblogotitle+" --size large --annotate "+xannotation+" --color blue C \'C\' --color red T \'T\' --color green A \'A\' --color orange G \'G\'"
     os.system(CMD)
 
 def main():
