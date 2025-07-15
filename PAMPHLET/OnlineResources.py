@@ -3,7 +3,6 @@
 '''
 PAMPHLET - PAM Prediction HomoLogous Enhancement Toolkit
 Author: Chen Qi, Baitao Li, Lei Huang
-Beijing Normal University-Hong Kong Baptist University United International College, FST-DSDS, Zhuhai, China
 University of Chinese Academy of Sciences, College of Life Sciences, Beijing, China
 BGI Research, Shenzhen, China
 Email: qichen@genomics.cn; libaitao@genomics.cn; huanglei@genomics.cn
@@ -29,6 +28,8 @@ def run_online_blastp(infile,outfile):
     UpLoadQuery = quote(upquery)
     arguments = "CMD=Put&PROGRAM=blastp&DATABASE=nr&ENTREZ_QUERY=txid2[ORGN]&EXPECT=0.00001&QUERY=" + UpLoadQuery
 
+    print(arguments)
+
     r = requests.put("https://blast.ncbi.nlm.nih.gov/Blast.cgi?"+arguments)
     RID = r.text.split("RID = ")[1].split()[0]
     print("PROTEIN blastp PROGRAM RID: "+RID)
@@ -42,7 +43,8 @@ def run_online_blastp(infile,outfile):
         Status = rStatus.text.split("Status=")[1].split()[0]
         print("Refresh in 30s, status: "+Status)
     
-    rResult = requests.get("https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE=Tabular&RID="+RID)
+    #rResult = requests.get("https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE=Tabular&RID="+RID)
+    rResult = requests.get(f"https://blast.ncbi.nlm.nih.gov/Blast.cgi?&CMD=Get&FORMAT_TYPE=Text&amp;ALIGNMENT_VIEW=Tabular&RID={RID}")
 
     ### Check rResult error message, if error message is "CPU usage limit was exceeded", then re-run the blastp program.
     if ErrorMessage in rResult.text:
@@ -99,11 +101,13 @@ def run_spacer_blast(infile,outfile,indb,blastmode):
     while Status != "READY":
         time.sleep(30)
         rStatus = requests.get("https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_OBJECT=SearchInfo&RID="+RID)
+        #rStatus = requests.get(f"https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_OBJECT=SearchInfo&RID={RID}")
         Status = rStatus.text.split("Status=")[1].split()[0]
         Status = rStatus.text.split("Status=")[1].split()[0]
         print("Refresh in 30s, status: "+Status)
 
-    rResult = requests.get("https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE=Tabular&RID="+RID)
+    #rResult = requests.get("https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Get&FORMAT_TYPE=Tabular&RID="+RID)
+    rResult = requests.get(f"https://blast.ncbi.nlm.nih.gov/Blast.cgi?&CMD=Get&FORMAT_TYPE=Text&amp;ALIGNMENT_VIEW=Tabular&RID={RID}")
 
     with open(outfile+".temp",'w') as fot:
         fot.write(rResult.text)
@@ -244,7 +248,7 @@ def get_seq_dump_file(insig,outdump,inmaxsize):
 
     return infodict
 
-@func_set_timeout(20)
+@func_set_timeout(60)
 def get_genome_request_text(inurl):
     r = requests.get(inurl)
     return r.text
@@ -264,6 +268,7 @@ def get_genome_seqdump_files(inhit,outfile):
                     break
                 duplicatebox.append(sbjctid)
                 gi2fasta = genomepage + sbjctid + "&rettype=fasta"
+                print("Get genome sequence for: "+sbjctid)
                 retry_counter = 0
                 ### if false, retry 3 times
                 while retry_counter < 3:
